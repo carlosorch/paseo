@@ -1476,6 +1476,9 @@ export const zhCN: TranslationResources = {
     openAction: "{{title}}，{{cadence}}",
     deleteAction: "删除心跳 {{title}}",
     deleteTooltip: "删除心跳",
+    hostUpdate: {
+      label: "更新 Host 以显示心跳活动",
+    },
   },
   panels: {
     draft: {

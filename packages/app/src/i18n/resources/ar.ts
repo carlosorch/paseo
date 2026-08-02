@@ -1496,6 +1496,9 @@ export const ar: TranslationResources = {
     openAction: "{{title}}، {{cadence}}",
     deleteAction: "حذف النبضة {{title}}",
     deleteTooltip: "حذف النبضة",
+    hostUpdate: {
+      label: "قم بتحديث المضيف لعرض نشاط النبضات",
+    },
   },
   panels: {
     draft: {

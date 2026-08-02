@@ -1530,6 +1530,9 @@ export const ru: TranslationResources = {
     openAction: "{{title}}, {{cadence}}",
     deleteAction: "Удалить пульс {{title}}",
     deleteTooltip: "Удалить пульс",
+    hostUpdate: {
+      label: "Обновите хост, чтобы показывать активность пульса",
+    },
   },
   panels: {
     draft: {

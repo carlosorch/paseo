@@ -1507,6 +1507,9 @@ export const en = {
     openAction: "{{title}}, {{cadence}}",
     deleteAction: "Delete heartbeat {{title}}",
     deleteTooltip: "Delete heartbeat",
+    hostUpdate: {
+      label: "Update the host to show heartbeat activity",
+    },
   },
   panels: {
     draft: {
