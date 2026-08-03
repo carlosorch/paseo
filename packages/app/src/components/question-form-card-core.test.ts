@@ -9,6 +9,32 @@ import {
 } from "./question-form-card-core";
 
 describe("question form card core", () => {
+  test("preserves secure input metadata", () => {
+    const questions = parseQuestionFormQuestions({
+      questions: [
+        {
+          question: "API key",
+          header: "Response",
+          options: [],
+          multiSelect: false,
+          secure: true,
+        },
+      ],
+    });
+
+    expect(questions).toEqual([
+      {
+        question: "API key",
+        header: "Response",
+        options: [],
+        multiSelect: false,
+        allowOther: false,
+        allowEmpty: false,
+        secure: true,
+      },
+    ]);
+  });
+
   test("treats optional input prompts as skippable empty answers", () => {
     const questions = parseQuestionFormQuestions({
       questions: [

@@ -98,6 +98,7 @@ const DEFAULT_PI_EXTENSION_RESULT_TIMEOUT_MS = 30_000;
 const QUESTION_RESPONSE_HEADER = "Response";
 const QUESTION_COMMENT_HEADER = "Comment";
 const PI_ASK_USER_FREEFORM_SENTINEL = "✏️ Type custom response...";
+const PI_SECURE_INPUT_PLACEHOLDER_PREFIX = "__paseo_secure_input__:";
 const COMBINED_ASK_USER_METADATA = "ask_user_select_optional_comment";
 
 export const PiProviderParamsSchema = z
@@ -968,7 +969,11 @@ function mapExtensionUiRequestToPermission(
       });
     }
     case "input": {
-      const placeholder = optionalString(event.placeholder);
+      const rawPlaceholder = optionalString(event.placeholder);
+      const isSecure = rawPlaceholder?.startsWith(PI_SECURE_INPUT_PLACEHOLDER_PREFIX) ?? false;
+      const placeholder = isSecure
+        ? rawPlaceholder?.slice(PI_SECURE_INPUT_PLACEHOLDER_PREFIX.length) || undefined
+        : rawPlaceholder;
       const title = optionalString(event.title);
       const allowEmpty = isOptionalInputPlaceholder(placeholder);
       return buildExtensionUiQuestionPermission(event, {
@@ -979,6 +984,7 @@ function mapExtensionUiRequestToPermission(
         multiSelect: false,
         ...(placeholder ? { placeholder } : {}),
         ...(allowEmpty ? { allowEmpty: true, dismissLabel: "Skip" } : {}),
+        ...(isSecure ? { secure: true } : {}),
       });
     }
     case "editor":
@@ -1046,6 +1052,7 @@ function buildExtensionUiQuestionPermission(
     placeholder?: string;
     allowEmpty?: boolean;
     dismissLabel?: string;
+    secure?: boolean;
   },
 ): AgentPermissionRequest {
   return {
@@ -1064,12 +1071,14 @@ function buildExtensionUiQuestionPermission(
           ...(input.placeholder ? { placeholder: input.placeholder } : {}),
           ...(input.allowEmpty ? { allowEmpty: true } : {}),
           ...(input.dismissLabel ? { dismissLabel: input.dismissLabel } : {}),
+          ...(input.secure ? { secure: true } : {}),
         },
       ],
     },
     metadata: {
       extensionUiMethod: event.method,
       answerHeader: QUESTION_RESPONSE_HEADER,
+      ...(input.secure ? { secureInput: true } : {}),
     },
   };
 }
@@ -1420,11 +1429,15 @@ export class PiRpcAgentSession implements AgentSession {
         buildExtensionUiResponse(request, response),
       );
     }
+    const resolution =
+      request.metadata?.secureInput === true && response.behavior === "allow"
+        ? { behavior: "allow" as const }
+        : response;
     this.emit({
       type: "permission_resolved",
       provider: this.provider,
       requestId,
-      resolution: response,
+      resolution,
       turnId: this.currentTurnIdForEvent(),
     });
   }

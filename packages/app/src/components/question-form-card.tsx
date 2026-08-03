@@ -257,6 +257,7 @@ interface QuestionOtherInputProps {
   accessibilityLabel: string;
   value: string;
   placeholder: string;
+  secure: boolean;
   isResponding: boolean;
   onChange: (qIndex: number, text: string) => void;
   onSubmit: () => void;
@@ -267,6 +268,7 @@ function QuestionOtherInput({
   accessibilityLabel,
   value,
   placeholder,
+  secure,
   isResponding,
   onChange,
   onSubmit,
@@ -304,6 +306,7 @@ function QuestionOtherInput({
       accessibilityLabel={accessibilityLabel}
       placeholder={placeholder}
       placeholderTextColor={theme.colors.foregroundMuted}
+      secureTextEntry={secure}
       value={value}
       onChangeText={handleChange}
       onSubmitEditing={onSubmit}
@@ -557,6 +560,7 @@ export function QuestionFormCard({ permission, onRespond, isResponding }: Questi
                 answerPlaceholder: t("message.question.answerPlaceholder"),
                 otherPlaceholder: t("message.question.otherPlaceholder"),
               })}
+              secure={activeQuestion.secure}
               isResponding={isResponding}
               onChange={setOtherText}
               onSubmit={handlePrimaryAction}

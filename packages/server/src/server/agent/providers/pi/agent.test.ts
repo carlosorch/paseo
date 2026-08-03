@@ -297,6 +297,52 @@ describe("PiRpcAgentSession", () => {
     });
   });
 
+  test("bridges secure Pi RPC input without exposing the answer in permission events", async () => {
+    const { pi, session, events } = await createSession();
+    const fakeSession = pi.latestSession();
+
+    fakeSession.emit({
+      type: "extension_ui_request",
+      id: "secret-1",
+      method: "input",
+      title: "Secure value for API_KEY",
+      placeholder: "__paseo_secure_input__:starts with sk-",
+    });
+
+    const permission = await events.nextPermissionRequest();
+    expect(permission.request).toMatchObject({
+      title: "Secure value for API_KEY",
+      input: {
+        questions: [
+          {
+            question: "Secure value for API_KEY",
+            header: "Response",
+            options: [],
+            multiSelect: false,
+            placeholder: "starts with sk-",
+            secure: true,
+          },
+        ],
+      },
+      metadata: { secureInput: true },
+    });
+
+    await session.respondToPermission("secret-1", {
+      behavior: "allow",
+      updatedInput: { answers: { Response: "sk-test-secret" } },
+    });
+
+    expect(fakeSession.extensionUiResponses).toEqual([
+      { id: "secret-1", response: { value: "sk-test-secret" } },
+    ]);
+    const resolution = await events.nextPermissionResolution();
+    expect(resolution).toMatchObject({
+      requestId: "secret-1",
+      resolution: { behavior: "allow" },
+    });
+    expect(resolution.resolution).not.toHaveProperty("updatedInput");
+  });
+
   test("bridges Pi RPC input and confirm extension UI responses", async () => {
     const { pi, session, events } = await createSession();
     const fakeSession = pi.latestSession();
